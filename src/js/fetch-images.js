@@ -9,17 +9,22 @@ export default class FetchImages {
         this.per_page = 40;
     }
 
-    fetchArticles() {
+    async fetchArticles() {
     const key = '14595272-b438f74d87c5b1f828750b62e';
-    const url =
-        `https://pixabay.com/api/everything?q=${this.searchQuery}&image_type=photo&orientation=horizontal&safesearch=true&per_page=40&page=${this.page}`;
-
-return fetch(url, key)
-    .then(r => r.json())
-    .then(data => {
-        this.nextPage();
-        return data.articles;
-    });
+    const url = 'https://pixabay.com/api/';
+        // `https://pixabay.com/api/everything?q=${this.searchQuery}&image_type=photo&orientation=horizontal&safesearch=true&per_page=40&page=${this.page}`;
+        const response = await axios.get(`${url}`, {
+            params: {
+                key: key,
+                q: this.searchQuery,
+                image_type: 'photo',
+                orientation: 'horizontal',
+                safesearch: true,
+                per_page: this.per_page,
+                page: this.page,
+            }
+        });
+        return response.data;
     }
 
     nextPage() {
