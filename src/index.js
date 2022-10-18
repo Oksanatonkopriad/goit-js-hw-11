@@ -8,7 +8,12 @@ import './css/styles.css';
 
 const refs = getRefs();
 const fetchImages = new FetchImages();
-let totalPages = 0;
+let totalPages = null;
+// refs.moreBtn.hidden = true;
+
+function clearGallery() {
+  refs.imageGallery.innerHTML = '';
+}
 
 refs.searchForm.addEventListener(`submit`, onSearchForm);
 refs.moreBtn.addEventListener(`click`, onLoadMore);
@@ -16,15 +21,15 @@ refs.moreBtn.addEventListener(`click`, onLoadMore);
 
 async function onSearchForm(e) {
   e.preventDefault();
-  clearGallery();
-  totalPages = 0;
+  // totalPages = null;
   fetchImages.form = e.currentTarget;
   fetchImages.query = e.currentTarget.elements.searchQuery.value.trim();
   fetchImages.resetPage();
+  clearGallery();
 
   if (fetchImages.query === '') {
     Notify.failure('Sorry, there are no images matching your search query. Please try again.');
-    btnHidden();
+    refs.moreBtn.classList.add('is-hidden');
     return;
   }
 
@@ -33,36 +38,26 @@ async function onSearchForm(e) {
     .then(({ hits, totalHits }) => {
       if (hits.length === 0) {
         Notify.failure('Sorry, there are no images matching your search query. Please try again.');
-        btnHidden();
+        refs.moreBtn.classList.add('is-hidden');
         return;
       }
       appendHitsMarkup(hits);
       Notify.success(`Hooray! We found ${totalHits} images.`);
-      btnVisible();
+      refs.moreBtn.classList.remove('is-hidden');
       simpleLightBox.refresh();
       totalPages = Math.ceil(totalHits / 40);
 
       if (fetchImages.page === totalPages) {
+        refs.moreBtn.classList.add('is-hidden');
         Notify.info('We re sorry, but you have reached the end of search results.');
-        btnHidden();
+        
       }
     })
     .catch()
-    .finally(() => e.target.reset());
+    .finally(() => fetchImages.form.reset());
 }
 
 
-function btnHidden() {
-  refs.moreBtn.classList.add('is-hidden');
-}
-
-function btnVisible() {
-  refs.moreBtn.classList.remove('is-hidden');
-}
-
-function clearGallery() {
-  refs.imageGallery.innerHTML = '';
-}
 function appendHitsMarkup(elements) {
   const markup = elements.map(({ largeImageURL, webformatURL, tags, likes, views, comments, downloads }) => {
     return `<div class="photo-card">
@@ -87,12 +82,12 @@ function appendHitsMarkup(elements) {
     </div>`;
   }).join('');
   refs.imageGallery.insertAdjacentHTML('beforeend', markup);
-  let simpleLightBox = new SimpleLightbox('.photo-card a', {
-    captions: true,
-    captionsData: 'alt',
-    captionDelay: 250,
-  });
 }
+let simpleLightBox = new SimpleLightbox('.photo-card a', {
+  captions: true,
+  captionsData: 'alt',
+  captionDelay: 250,
+});
 
 function onLoadMore() {
   fetchImages.nextPage();
@@ -102,9 +97,12 @@ function onLoadMore() {
       appendHitsMarkup(hits);
       simpleLightBox.refresh();
 
+      // console.log(totalPages);
+
       if (fetchImages.page === totalPages) {
-        btnHidden();
+        refs.moreBtn.classList.add('is-hidden');
         Notify.failure(`We're sorry, but you've reached the end of search results`);
       }
     })
     .catch(error => console.log(error));
+}
