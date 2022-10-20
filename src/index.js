@@ -11,15 +11,15 @@ const fetchImages = new FetchImages();
 let totalPages = null;
 // refs.moreBtn.hidden = true;
 
-function clearGallery() {
-  refs.imageGallery.innerHTML = '';
-}
 
 refs.searchForm.addEventListener(`submit`, onSearchForm);
 refs.moreBtn.addEventListener(`click`, onLoadMore);
 
+function clearGallery() {
+  refs.imageGallery.innerHTML = '';
+}
 
-async function onSearchForm(e) {
+function onSearchForm(e) {
   e.preventDefault();
   // totalPages = null;
   fetchImages.form = e.currentTarget;
@@ -57,14 +57,12 @@ async function onSearchForm(e) {
     .finally(() => fetchImages.form.reset());
 }
 
-
 function appendHitsMarkup(elements) {
   const markup = elements.map(({ largeImageURL, webformatURL, tags, likes, views, comments, downloads }) => {
     return `<div class="photo-card">
   <a href='${largeImageURL}'>
     <img src='${webformatURL}' alt='${tags}' loading="lazy" />
     </a>
-    
     <div class="info">
     <p class="info-item">
     <b>Likes:  ${likes}</b>
@@ -96,8 +94,6 @@ function onLoadMore() {
       console.log(totalHits);
       appendHitsMarkup(hits);
       simpleLightBox.refresh();
-
-      // console.log(totalPages);
 
       if (fetchImages.page === totalPages) {
         refs.moreBtn.classList.add('is-hidden');

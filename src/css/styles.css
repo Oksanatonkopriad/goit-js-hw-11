@@ -71,6 +71,10 @@ button:hover {
   background-color: rgb(24, 8, 235);
 }
 
+button.is-hidden {
+    display: none;
+}
+
 .gallery {
     display: flex;
     flex-wrap: wrap;
